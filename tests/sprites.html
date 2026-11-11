@@ -1,0 +1,19 @@
+<!DOCTYPE html><html><body style="background:#3a3424;margin:0">
+<canvas id="c" width="1200" height="700" style="image-rendering:pixelated"></canvas>
+<script type="module">
+import { peccarySide, peccaryFront, tapirSprite } from '../js/gfx/art-peccary.js';
+const c = document.getElementById('c'), x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+const Z = 5; let col = 0, row = 0;
+const put = (s, label) => { x.drawImage(s, 10 + col * 140, 10 + row * 110, s.width * Z, s.height * Z); x.fillStyle = '#fff'; x.font = '11px sans-serif'; x.fillText(label, 10 + col * 140, 105 + row * 110); col++; if (col >= 8) { col = 0; row++; } };
+for (const gait of ['walk', 'run']) for (let f = 0; f < 4; f++) put(peccarySide({ gait, frame: f, head: 'mid', pal: 0 }), gait + f);
+put(peccarySide({ gait: 'idle', frame: 0, head: 'down', pal: 1 }), 'forage');
+put(peccarySide({ gait: 'idle', frame: 0, head: 'up', pal: 2 }), 'alert');
+put(peccarySide({ gait: 'idle', frame: 0, head: 'mid', mouth: true, bristle: true, pal: 0 }), 'def');
+put(peccarySide({ gait: 'walk', frame: 1, head: 'mid', juv: true, pal: 0 }), 'juv');
+put(peccarySide({ gait: 'idle', frame: 0, head: 'down', juv: true, pal: 0 }), 'juvF');
+put(peccaryFront({ frame: 0, head: 'mid', pal: 0 }), 'front');
+put(peccaryFront({ frame: 1, head: 'mid', pal: 1, back: true }), 'back');
+put(peccaryFront({ frame: 0, head: 'mid', pal: 0, mouth: true, bristle: true }), 'frontDef');
+put(tapirSprite(0, 'mid'), 'tapir'); put(tapirSprite(1, 'down'), 'tapirD');
+window.done = true;
+</script></body></html>

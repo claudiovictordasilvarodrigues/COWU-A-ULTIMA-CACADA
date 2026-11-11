@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d150c">
+<title>A Última Caçada: Os Encantados da Amazônia</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Nunito:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <main id="stage">
+    <canvas id="game" aria-label="Mundo do jogo"></canvas>
+
+    <div id="titlecard" class="titlecard" hidden><div class="tc-code"></div><div class="tc-title"></div><div class="tc-sub"></div></div>
+    <div id="toasts" aria-live="polite"></div>
+    <div id="caption" class="caption" hidden></div>
+    <div id="alertbar" class="alertbar" hidden role="status"></div>
+    <div id="navhud" class="navhud" hidden>
+      <div class="nv-row"><span class="nv-l">CANOA</span><div class="nv-sp"><i></i></div></div>
+      <div class="nv-row"><span class="nv-l">CORRENTEZA</span><span class="nv-arrow">➜</span><span class="nv-cw">fraca</span></div>
+      <div class="nv-row nv-in" hidden><span class="nv-l">BALANÇO</span><div class="nv-bar"><i></i></div></div>
+    </div>
+
+    <div id="dialog" class="dialog" hidden>
+      <canvas id="portrait" width="18" height="27"></canvas>
+      <div class="dlg-body">
+        <div class="dlg-name"></div>
+        <div class="dlg-text"></div>
+        <div class="dlg-choices"></div>
+      </div>
+      <div class="dlg-next">▼</div>
+    </div>
+
+    <div id="mobile-hud" class="mobile-hud">
+      <div class="mh-bars">
+        <div class="mh-bar hp"><i></i></div>
+        <div class="mh-bar en"><i></i></div>
+      </div>
+      <div class="mh-timer" id="mh-timer">40:00</div>
+      <div class="mh-obj" id="mh-obj"></div>
+    </div>
+
+    <div id="touch" class="touch" aria-hidden="true">
+      <div id="joy" class="joy"><div id="joy-knob" class="joy-knob"></div></div>
+      <div class="tbtns">
+        <button class="tb tb-e" data-act="interact">✋</button>
+        <button class="tb tb-run" data-act="run">Correr</button>
+        <button class="tb tb-dodge" data-act="dodge">Esquiva</button>
+        <button class="tb tb-sneak" data-act="sneak">Agachar</button>
+        <button class="tb tb-lamp" data-act="lantern">Luz</button>
+        <button class="tb tb-aim" data-act="aim">Mirar</button>
+      </div>
+      <div class="ttop">
+        <button class="tt" data-act="drawer">☰ Missões</button>
+        <button class="tt" data-act="inventory">Paneiro</button>
+        <button class="tt" data-act="map">Mapa</button>
+        <button class="tt" data-act="pause">❚❚</button>
+      </div>
+    </div>
+  </main>
+
+  <aside id="panel" class="panel">
+    <header class="ph">
+      <div class="ph-code" id="ph-code">FASE 1</div>
+      <h2 id="ph-title">A PRIMEIRA PEGADA</h2>
+      <div class="ph-meta"><span id="tod">05:10</span> · <span id="todname">Amanhecer</span></div>
+    </header>
+    <section class="ptimer">
+      <div class="lbl">TEMPO RESTANTE</div>
+      <div id="timer" class="timer">40:00</div>
+    </section>
+    <section class="pmissions">
+      <div class="sec" id="msec-title">MISSÕES</div>
+      <ul id="missions"></ul>
+    </section>
+    <section class="pmissions psec" id="psec" hidden>
+      <div class="sec">MISSÕES SECUNDÁRIAS</div>
+      <ul id="missions2"></ul>
+    </section>
+    <section class="pstatus">
+      <div class="sec">STATUS</div>
+      <div class="bar" id="b-hp"><span class="bl">Vida</span><div class="track"><div class="fill"></div></div><span class="bv">100/100</span></div>
+      <div class="bar" id="b-en"><span class="bl">Energia</span><div class="track"><div class="fill"></div></div><span class="bv">100/100</span></div>
+      <div class="bar" id="b-lt"><span class="bl">Lanterna</span><div class="track"><div class="fill"></div></div><span class="bv">100%</span></div>
+      <div class="noise"><span class="bl">Ruído<small id="noise-lv" class="nlv lo">BAIXO</small></span><div class="nm" id="noise"><i></i><i></i><i></i><i></i><i></i></div><span id="stance" class="stance">Andando</span></div>
+      <div class="row"><span id="found-lbl">Itens encontrados</span><b id="found">0/5</b></div>
+      <div class="quick" id="quick"></div>
+    </section>
+    <section class="pnav">
+      <canvas id="minimap" width="252" height="150"></canvas>
+    </section>
+    <footer class="pbtns">
+      <button data-ui="inventory">Paneiro <kbd>I</kbd></button>
+      <button data-ui="map">Mapa <kbd>M</kbd></button>
+      <button data-ui="pause">Pausa <kbd>Esc</kbd></button>
+    </footer>
+  </aside>
+  <div id="scrim" class="scrim" hidden></div>
+
+  <!-- telas -->
+  <section id="scr-loading" class="screen show">
+    <div class="loading"><div class="lg-title">A Última Caçada</div><div class="lg-bar"><i id="lg-fill"></i></div><div id="lg-msg" class="lg-msg">Preparando a mata…</div></div>
+  </section>
+
+  <section id="scr-menu" class="screen menu">
+    <div class="cover">
+      <div class="cover-fill" aria-hidden="true"></div>
+      <div class="cover-frame">
+        <img class="cover-art" src="img/capa.jpg" alt="Cowü — A Última Caçada: Os Encantados da Amazônia" draggable="false">
+        <button id="btn-new" class="hot hot-new" aria-label="Novo Jogo"></button>
+        <button id="btn-continue" class="hot hot-cont" aria-label="Continuar"></button>
+        <div class="cont-off" aria-hidden="true"></div>
+        <button data-open="settings" class="hot hot-cfg" aria-label="Configurações"></button>
+        <button id="btn-quit" class="hot hot-quit" aria-label="Sair"></button>
+        <div class="hot-enter" aria-hidden="true"></div>
+        <div id="cover-msg" class="cover-msg" role="status" hidden></div>
+        <nav class="cover-links">
+          <button id="btn-phases" class="cl" hidden>Fases</button>
+          <button data-open="controls" class="cl">Controles</button>
+          <button data-open="about" class="cl">Sobre as lendas</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <section id="scr-intro" class="screen intro"><div class="intro-text" id="intro-text"></div><div class="intro-skip">Toque, clique ou Espaço para continuar</div></section>
+
+  <section id="scr-pause" class="screen modal">
+    <div class="card">
+      <h2>Pausa</h2>
+      <div class="m-btns">
+        <button data-act-ui="resume" class="btn primary">Continuar</button>
+        <button data-act-ui="checkpoint" class="btn">Voltar ao último checkpoint</button>
+        <button data-open="controls" class="btn">Controles</button>
+        <button data-open="settings" class="btn">Opções</button>
+        <button data-open="about" class="btn">Sobre as lendas</button>
+        <button data-act-ui="menu" class="btn">Menu principal</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="scr-inventory" class="screen modal">
+    <div class="card wide">
+      <h2>Paneiro <small id="inv-cap"></small></h2>
+      <div class="inv">
+        <div class="inv-grid" id="inv-grid"></div>
+        <div class="inv-detail" id="inv-detail"><p class="muted">Selecione um item.</p></div>
+      </div>
+      <h3>Achados</h3>
+      <div class="inv-grid found" id="inv-found"></div>
+      <h3 id="inv-journal-h" hidden>Diário de campo</h3>
+      <div class="journal" id="inv-journal" hidden></div>
+      <h3>Caderno de rastros</h3>
+      <div class="tracks" id="inv-tracks"></div>
+      <div class="m-btns row"><button data-act-ui="resume" class="btn primary">Fechar <kbd>I</kbd></button></div>
+    </div>
+  </section>
+
+  <section id="scr-map" class="screen modal">
+    <div class="card wide">
+      <h2>Mapa da região</h2>
+      <canvas id="bigmap" width="600" height="550"></canvas>
+      <div class="legend"><span class="lg-you">Você</span><span class="lg-obj">Objetivo</span><span class="lg-poi">Lugar conhecido</span></div>
+      <div class="m-btns row"><button data-act-ui="resume" class="btn primary">Fechar <kbd>M</kbd></button></div>
+    </div>
+  </section>
+
+  <section id="scr-controls" class="screen modal">
+    <div class="card">
+      <h2>Controles</h2>
+      <table class="keys">
+        <tr><td><kbd>W A S D</kbd> / setas</td><td>Andar</td></tr>
+        <tr><td><kbd>Shift</kbd></td><td>Correr (gasta energia)</td></tr>
+        <tr><td><kbd>C</kbd></td><td>Agachar / andar em silêncio (ruído baixo)</td></tr>
+        <tr><td><kbd>E</kbd></td><td>Interagir, examinar, coletar</td></tr>
+        <tr><td><kbd>F</kbd></td><td>Lanterna</td></tr>
+        <tr><td><kbd>Espaço</kbd></td><td>Esquivar (ou atirar ao mirar)</td></tr>
+        <tr><td><kbd>Q</kbd> / botão direito</td><td>Mirar (segure)</td></tr>
+        <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></td><td>Cantil, marmita, pilhas</td></tr>
+        <tr><td><kbd>I</kbd> · <kbd>M</kbd> · <kbd>Esc</kbd></td><td>Paneiro · Mapa · Pausa</td></tr>
+      </table>
+      <p class="muted">No celular: joystick à esquerda e botões à direita. "Missões" abre o painel.</p>
+      <div class="m-btns row"><button data-back class="btn primary">Voltar</button></div>
+    </div>
+  </section>
+
+  <section id="scr-settings" class="screen modal">
+    <div class="card">
+      <h2>Opções</h2>
+      <label class="opt">Volume geral <input type="range" min="0" max="1" step="0.05" data-set="master"></label>
+      <label class="opt">Música <input type="range" min="0" max="1" step="0.05" data-set="music"></label>
+      <label class="opt">Efeitos <input type="range" min="0" max="1" step="0.05" data-set="sfx"></label>
+      <label class="opt">Ambiente <input type="range" min="0" max="1" step="0.05" data-set="amb"></label>
+      <label class="opt chk"><input type="checkbox" data-set="captions"> Legendas de sons</label>
+      <label class="opt chk"><input type="checkbox" data-set="visualSound"> Indicadores visuais de direção do som</label>
+      <label class="opt chk"><input type="checkbox" data-set="markers"> Marcador do objetivo no mundo</label>
+      <label class="opt chk"><input type="checkbox" data-set="shake"> Tremor de câmera</label>
+      <div class="m-btns row"><button data-back class="btn primary">Voltar</button></div>
+    </div>
+  </section>
+
+  <section id="scr-phases" class="screen modal">
+    <div class="card">
+      <h2>Fases</h2>
+      <div id="phase-list" class="phase-list"></div>
+      <div class="m-btns row"><button data-back class="btn">Voltar</button></div>
+    </div>
+  </section>
+
+  <section id="scr-about" class="screen modal">
+    <div class="card wide lore" id="lore"></div>
+  </section>
+
+  <section id="scr-fail" class="screen modal">
+    <div class="card">
+      <h2 id="fail-title">A expedição falhou</h2>
+      <p id="fail-msg"></p>
+      <div class="m-btns"><button data-act-ui="checkpoint" class="btn primary">Retomar do último checkpoint</button><button data-act-ui="menu" class="btn">Menu principal</button></div>
+    </div>
+  </section>
+
+  <section id="scr-results" class="screen modal results">
+    <div class="card">
+      <div class="r-code" id="r-code">FASE 1 CONCLUÍDA</div>
+      <h2 id="r-title">A Primeira Pegada</h2>
+      <div id="results-body"></div>
+      <div class="next" id="r-next">Próxima fase: <b>O Caminho dos Queixadas</b></div>
+      <div class="m-btns"><button data-act-ui="next" id="btn-next" class="btn primary" hidden>Jogar a Fase 2</button><button data-act-ui="replay" class="btn">Jogar a fase de novo</button><button data-act-ui="menu" class="btn">Menu principal</button></div>
+    </div>
+  </section>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

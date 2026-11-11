@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Testes — A Última Caçada</title>
+<style>body{background:#10170e;color:#efe6cf;font:14px/1.5 monospace;padding:20px}h1{font-size:18px}.ok{color:#8fcf6a}.no{color:#e0654a}pre{white-space:pre-wrap}</style></head>
+<body><h1>A Última Caçada — testes automatizados (lógica)</h1>
+<p>Rodam aqui no navegador, sem instalar nada. O save real do jogo não é tocado (os testes usam um armazenamento em memória).</p>
+<pre id="out">Rodando…</pre>
+<script type="module">
+import { runAll } from './lib.mjs';
+import './unit/save.test.mjs';
+import './unit/ai.test.mjs';
+import './unit/phase2.test.mjs';
+import './unit/phase3.test.mjs';
+const out = document.getElementById('out'); out.textContent = '';
+const log = (t) => { const s = document.createElement('span'); s.className = t.includes('✗') ? 'no' : t.includes('✓') ? 'ok' : ''; s.textContent = t + '\n'; out.appendChild(s); };
+const r = await runAll(log);
+document.title = (r.fail ? '✗ ' : '✓ ') + document.title;
+window.testResult = r;
+</script></body></html>

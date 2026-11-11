@@ -1,0 +1,19 @@
+A ÚLTIMA CAÇADA — como abrir o jogo
+
+1) Jeito mais simples: dê dois cliques em index.html.
+   Ele usa o arquivo js/jogo.bundle.js (todo o código num arquivo só), que funciona
+   direto no navegador, sem servidor.
+
+2) Para desenvolver (editar o código em js/): abra index-modulos.html por um servidor
+   local (por exemplo, a extensão Live Server do VS Code). Navegadores bloqueiam
+   módulos JavaScript abertos com dois cliques, por isso ele precisa de servidor.
+
+   Depois de editar, gere de novo o arquivo único (precisa de Node.js):
+     npx esbuild js/main.js --bundle --format=iife --target=es2020 --outfile=js/jogo.bundle.js
+
+O save fica guardado no navegador. Abrir por dois cliques e abrir por servidor
+são "endereços" diferentes para o navegador, então cada um tem o seu próprio save.
+
+Fase 3 (Os Segredos da Várzea): termine a Fase 2 e use o botão "Jogar a Fase 3" ou o menu Fases.
+Na canoa: W rema, S freia/rema de ré, A/D viram, E embarca/desembarca perto de uma margem.
+No celular, aponte o joystick para onde quer ir.
